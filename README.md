@@ -1,2 +1,2 @@
 # aoc2023
-AoC Solutions in Mojo �
+AoC Solutions in Mojo 🔥
