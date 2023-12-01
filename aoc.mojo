@@ -19,26 +19,50 @@ from utils.vector import DynamicVector
     return lines """
 
 
-fn str2dig(s: String) -> Int:
-    if s == "0":
+# Received a string and an index to start looking for
+# either a digit or a textual repr of a digit.
+# It returns the int value and modifies the index to point
+# to the next index to keep looking.
+fn str2dig(s: String, inout idx: Int) -> Int:
+    if s[idx] == "0" or s[idx : idx + 4] == "zero":
+        if s[idx] != "0":
+            idx += 4
         return 0
-    elif s == "1":
+    elif s[idx] == "1" or s[idx : idx + 3] == "one":
+        if s[idx] != "1":
+            idx += 3
         return 1
-    elif s == "2":
+    elif s[idx] == "2" or s[idx : idx + 3] == "two":
+        if s[idx] != "2":
+            idx += 3
         return 2
-    elif s == "3":
+    elif s[idx] == "3" or s[idx : idx + 5] == "three":
+        if s[idx] != "3":
+            idx += 5
         return 3
-    elif s == "4":
+    elif s[idx] == "4" or s[idx : idx + 4] == "four":
+        if s[idx] != "4":
+            idx += 4
         return 4
-    elif s == "5":
+    elif s[idx] == "5" or s[idx : idx + 4] == "five":
+        if s[idx] != "5":
+            idx += 4
         return 5
-    elif s == "6":
+    elif s[idx] == "6" or s[idx : idx + 3] == "six":
+        if s[idx] != "6":
+            idx += 3
         return 6
-    elif s == "7":
+    elif s[idx] == "7" or s[idx : idx + 5] == "seven":
+        if s[idx] != "7":
+            idx += 5
         return 7
-    elif s == "8":
+    elif s[idx] == "8" or s[idx : idx + 5] == "eight":
+        if s[idx] != "8":
+            idx += 5
         return 8
-    elif s == "9":
+    elif s[idx] == "9" or s[idx : idx + 4] == "nine":
+        if s[idx] != "9":
+            idx += 4
         return 9
     else:
         return -1
@@ -65,7 +89,7 @@ fn main() raises:
             first = -1
             last = -1
             continue
-        let maybe_digit: Int = str2dig(adventure[idx])
+        let maybe_digit: Int = str2dig(adventure, idx)
         if maybe_digit != -1 and first == -1:
             first = maybe_digit
             last = maybe_digit
