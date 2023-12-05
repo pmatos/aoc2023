@@ -50,7 +50,6 @@ fn parse_colour(s: String, inout idx: Int) -> String:
         return ""
 
 fn is_prefix(prf: String, s: String, idx: Int) -> Bool:
-    print("is_prefix", prf, idx)
     # Returns true if the string s is a prefix of the string s
     if len(prf) > len(s) - idx:
         return False
@@ -85,12 +84,10 @@ fn parse_draw(line: String, inout idx: Int) raises -> (Int, Int, Int):
 
     while line[idx] != ";" and line[idx] != "\n":
         let num = parse_number(line, idx)
-        print("parsed number", num)
         if num < 0:
             raise "Invalid digit"
         skip_ws(line, idx)
         let colour = parse_colour(line, idx)
-        print("parsed colour", colour)
         if colour == "red":
             red += num
         elif colour == "green":
@@ -125,12 +122,14 @@ fn is_valid_draw(telf: (Int, Int, Int), tgiven: (Int, Int, Int)) -> Bool:
     return elf_red >= given_red and elf_green >= given_green and elf_blue >= given_blue and 
         elf_red + elf_green + elf_blue >= given_red + given_green + given_blue
 
-fn is_valid_game(telf: (Int, Int, Int), gameStr: String, inout idx: Int) -> Int:
-    # Returns the game number if the game is valid, or 0 otherwise 
-    #let (elf_red, elf_green, elf_blue) = telf
-    let elf_red: Int = telf.get[0, Int]()
-    let elf_green: Int = telf.get[1, Int]()
-    let elf_blue: Int = telf.get[2, Int]()
+fn max(a: Int, b: Int) -> Int:
+    if a > b:
+        return a
+    else:
+        return b
+
+fn find_valid_game(gameStr: String, inout idx: Int) -> Int:
+    # Returns the multiplication of the colors of cubes that make the game valid
 
     # Parse the game
     if not is_prefix("Game", gameStr, idx):
@@ -149,20 +148,21 @@ fn is_valid_game(telf: (Int, Int, Int), gameStr: String, inout idx: Int) -> Int:
     idx += 1
     skip_ws(gameStr, idx)
 
+    var minRed = 0
+    var minGreen = 0
+    var minBlue = 0
+
     # Parse the draws
-    var valid: Bool = True
     while gameStr[idx] != "\n":
-        print("game validation loop", idx)
+        print("game analysis loop", idx)
         try:
             let tup: (Int, Int, Int) = parse_draw(gameStr, idx)
-            valid = valid and is_valid_draw((elf_red, elf_green, elf_blue), tup)
-            print("valid", valid)
+            minRed = max(minRed, tup.get[0, Int]())
+            minGreen = max(minGreen, tup.get[1, Int]())
+            minBlue = max(minBlue, tup.get[2, Int]())
+
         except:
             print("exception")
-            valid = False
-            break
-
-        if not valid:
             break
 
         skip_ws(gameStr, idx)
@@ -170,14 +170,11 @@ fn is_valid_game(telf: (Int, Int, Int), gameStr: String, inout idx: Int) -> Int:
             idx += 1
         skip_ws(gameStr, idx)
     
-    if not valid:
-            skip_game(gameStr, idx)
-            return 0
-    if gameStr[idx] == "\n":
-        idx += 1 # skip the newline
-
-    print("game ", game_num, " is valid")
-    return game_num
+    debug_assert(gameStr[idx] == "\n", "Expected newline")
+    idx += 1 # skip the newline
+    let gamePower = minRed * minGreen * minBlue
+    print("game ", game_num, " Power: ", gamePower)
+    return gamePower
 
 
 fn main() raises:
@@ -185,16 +182,10 @@ fn main() raises:
     with open("day2.txt", "r") as f:
         lines = f.read()
 
-    # Elf request
-    let red = 12
-    let green = 13
-    let blue = 14
-    let total = red + green + blue
-
     # Parse games line by line
     var accum = 0
     var idx = 0
     while idx >= 0 and idx < len(lines):
         # A Game is a tuple of (red, green, blue)
-        accum += is_valid_game((red, green, blue), lines, idx)
+        accum += find_valid_game(lines, idx)
     print(accum)
